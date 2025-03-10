@@ -549,7 +549,7 @@ To install the necessary dependencies, run the following command:
     # Display the plot
     plt.show()
     ```
-    26. **Classification Report for Random Forest Model**: Generate and print a classification report for the Random Forest model's predictions, providing detailed metrics on the model's performance.
+26. **Classification Report for Random Forest Model**: Generate and print a classification report for the Random Forest model's predictions, providing detailed metrics on the model's performance.
     ```python
     # Generate the classification report for the Random Forest model's predictions
     class_report = classification_report(y_test, y_pred, zero_division=0)

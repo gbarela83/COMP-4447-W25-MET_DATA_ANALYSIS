@@ -15,196 +15,196 @@ To install the necessary dependencies, run the following command:
 ! pip install -r requirements.txt
 ```
 1. **Import Libraries**: Essential for data manipulation and analysis.
-  ```python
-  import pandas as pd
-  import seaborn as sns
-  import matplotlib.pyplot as plt
-  import re
-  ```
+    ```python
+    import pandas as pd
+    import seaborn as sns
+    import matplotlib.pyplot as plt
+    import re
+    ```
 2. **Load the Dataset:**: Define the URL and load the dataset into a pandas DataFrame.
-  ```python
-  url = 'https://github.com/metmuseum/openaccess/raw/refs/heads/master/MetObjects.csv'
-  data = pd.read_csv(url)
-  ```
+    ```python
+    url = 'https://github.com/metmuseum/openaccess/raw/refs/heads/master/MetObjects.csv'
+    data = pd.read_csv(url)
+    ```
 3. **Data Analysis:**: Perform descriptive statistics and other analyses.
-  ```python
-  print(data.describe())
-  print(data.shape)
-  ```
+    ```python
+    print(data.describe())
+    print(data.shape)
+    ```
 4. **Analyze Missing Data:**: Analyze missing data and combine it with the data types of each feature.
-  ```python
-  nullData = []
-  nullCounts = data.isnull().sum()
-  totalInstances = len(data)
-  nullPercentages = (nullCounts / totalInstances) * 100
-  
-  for feature, count, percentage in zip(nullCounts.index, nullCounts, nullPercentages):
-      nullData.append((feature, count, round(percentage, 2)))
-  
-  nullDataFrame = pd.DataFrame(nullData, columns=['Feature', 'Count', 'Percentage'])
-  
-  # Sort the DataFrame by 'Percentage' in descending order
-  nullDataFrame = nullDataFrame.sort_values(by='Percentage', ascending=False)
-  
-  # Get the data types of each feature in the DataFrame
-  data_types = data.dtypes
-  
-  # Convert the data types to a DataFrame for better readability
-  data_types_df = data_types.reset_index()
-  data_types_df.columns = ['Feature', 'Data Type']
-  
-  # Merge the null data and data types into a single DataFrame
-  combined_df = pd.merge(nullDataFrame, data_types_df, on='Feature')
-  
-  combined_df
-  ```
+    ```python
+    nullData = []
+    nullCounts = data.isnull().sum()
+    totalInstances = len(data)
+    nullPercentages = (nullCounts / totalInstances) * 100
+    
+    for feature, count, percentage in zip(nullCounts.index, nullCounts, nullPercentages):
+        nullData.append((feature, count, round(percentage, 2)))
+    
+    nullDataFrame = pd.DataFrame(nullData, columns=['Feature', 'Count', 'Percentage'])
+    
+    # Sort the DataFrame by 'Percentage' in descending order
+    nullDataFrame = nullDataFrame.sort_values(by='Percentage', ascending=False)
+    
+    # Get the data types of each feature in the DataFrame
+    data_types = data.dtypes
+    
+    # Convert the data types to a DataFrame for better readability
+    data_types_df = data_types.reset_index()
+    data_types_df.columns = ['Feature', 'Data Type']
+    
+    # Merge the null data and data types into a single DataFrame
+    combined_df = pd.merge(nullDataFrame, data_types_df, on='Feature')
+    
+    combined_df
+    ```
 5. **Data Cleaning:** Clean the dataset by removing rows with NaN values in the 'AccessionYear' column and filtering out empty strings and zeros.
-  ```python
-  # Remove rows with NaN values in 'AccessionYear'
-  data = data.dropna(subset=['AccessionYear'])
-  data = data[(data['AccessionYear'] != '') & (data['AccessionYear'] != 0)]
-  data.shape
-  
-  # List of features to keep for analysis of accession and object dates
-  features_to_keep = ['AccessionYear', 'Object Begin Date', 'Object End Date', 'Department', 'Artist Begin Date', 'Artist End Date', 'Dimensions', 'Object Date']
-  
-  # Drop irrelevant features
-  cleaned_data = data[features_to_keep]
-  
-  # Convert 'AccessionYear' to numeric, coercing errors to NaN
-  cleaned_data.loc[:, 'AccessionYear'] = pd.to_numeric(cleaned_data['AccessionYear'], errors='coerce')
-  
-  # Drop rows where 'AccessionYear' is NaN after the conversion
-  cleaned_data = cleaned_data.dropna(subset=['AccessionYear'])
-  
-  cleaned_data.head()
-  cleaned_data.shape
-  ```
+    ```python
+    # Remove rows with NaN values in 'AccessionYear'
+    data = data.dropna(subset=['AccessionYear'])
+    data = data[(data['AccessionYear'] != '') & (data['AccessionYear'] != 0)]
+    data.shape
+    
+    # List of features to keep for analysis of accession and object dates
+    features_to_keep = ['AccessionYear', 'Object Begin Date', 'Object End Date', 'Department', 'Artist Begin Date', 'Artist End Date', 'Dimensions', 'Object Date']
+    
+    # Drop irrelevant features
+    cleaned_data = data[features_to_keep]
+    
+    # Convert 'AccessionYear' to numeric, coercing errors to NaN
+    cleaned_data.loc[:, 'AccessionYear'] = pd.to_numeric(cleaned_data['AccessionYear'], errors='coerce')
+    
+    # Drop rows where 'AccessionYear' is NaN after the conversion
+    cleaned_data = cleaned_data.dropna(subset=['AccessionYear'])
+    
+    cleaned_data.head()
+    cleaned_data.shape
+    ```
 6. **Plotting Distributions:** Visualize the distribution of dates by department.
-  ```python
-  # Plot the distribution of accession dates by department
-  plt.figure(figsize=(12, 6))
-  cleaned_data.groupby('Department')['AccessionYear'].plot(kind='hist', alpha=0.5, legend=True)
-  plt.title('Distribution of Accession Dates by Department')
-  plt.xlabel('Accession Year')
-  plt.ylabel('Frequency')
-  plt.legend(title='Department', bbox_to_anchor=(1.05, 1), loc='upper left')
-  plt.show()
-  
-  # Plot the distribution of object begin dates by department
-  plt.figure(figsize=(12, 6))
-  cleaned_data.groupby('Department')['Object Begin Date'].plot(kind='hist', alpha=0.5, legend=True)
-  plt.title('Distribution of Object Begin Dates by Department')
-  plt.xlabel('Object Begin Date')
-  plt.ylabel('Frequency')
-  plt.legend(title='Department', bbox_to_anchor=(1.05, 1), loc='upper left')
-  plt.show()
-  
-  # Plot the distribution of object end dates by department
-  plt.figure(figsize=(12, 6))
-  cleaned_data.groupby('Department')['Object End Date'].plot(kind='hist', alpha=0.5, legend=True)
-  plt.title('Distribution of Object End Dates by Department')
-  plt.xlabel('Object End Date')
-  plt.ylabel('Frequency')
-  plt.legend(title='Department', bbox_to_anchor=(1.05, 1), loc='upper left')
-  plt.show()
-  ```
+    ```python
+    # Plot the distribution of accession dates by department
+    plt.figure(figsize=(12, 6))
+    cleaned_data.groupby('Department')['AccessionYear'].plot(kind='hist', alpha=0.5, legend=True)
+    plt.title('Distribution of Accession Dates by Department')
+    plt.xlabel('Accession Year')
+    plt.ylabel('Frequency')
+    plt.legend(title='Department', bbox_to_anchor=(1.05, 1), loc='upper left')
+    plt.show()
+    
+    # Plot the distribution of object begin dates by department
+    plt.figure(figsize=(12, 6))
+    cleaned_data.groupby('Department')['Object Begin Date'].plot(kind='hist', alpha=0.5, legend=True)
+    plt.title('Distribution of Object Begin Dates by Department')
+    plt.xlabel('Object Begin Date')
+    plt.ylabel('Frequency')
+    plt.legend(title='Department', bbox_to_anchor=(1.05, 1), loc='upper left')
+    plt.show()
+    
+    # Plot the distribution of object end dates by department
+    plt.figure(figsize=(12, 6))
+    cleaned_data.groupby('Department')['Object End Date'].plot(kind='hist', alpha=0.5, legend=True)
+    plt.title('Distribution of Object End Dates by Department')
+    plt.xlabel('Object End Date')
+    plt.ylabel('Frequency')
+    plt.legend(title='Department', bbox_to_anchor=(1.05, 1), loc='upper left')
+    plt.show()
+    ```
 7. **Anomaly Detection:** Detect anomalies in the dataset using the Isolation Forest algorithm.
-  ```python
-  import pandas as pd
-  from sklearn.ensemble import IsolationForest
-  import re
-  
-  # Convert categorical data to numerical data using one-hot encoding
-  cleaned_data = pd.get_dummies(cleaned_data, columns=['Department'])
-  
-  # Ensure all columns are numeric
-  for column in cleaned_data.columns:
-      cleaned_data[column] = pd.to_numeric(cleaned_data[column], errors='coerce')
-  
-  # Save version pre one hot encoding
-  cleaned_data_no_one = cleaned_data.copy()
-  
-  # Initialize the Isolation Forest model
-  model = IsolationForest(contamination=0.01, random_state=42)
-  
-  # Fit the model to the data
-  model.fit(cleaned_data)
-  
-  # Predict anomalies (1 for normal, -1 for anomaly)
-  anomalies = model.predict(cleaned_data)
-  
-  # Add the anomaly column to the DataFrame
-  cleaned_data['Anomaly'] = anomalies
-  
-  # Display the rows that are considered anomalies
-  anomalies_df = cleaned_data[cleaned_data['Anomaly'] == -1]
-  
-  # Print the anomalies DataFrame
-  anomalies_df.head()
-  ```
+    ```python
+    import pandas as pd
+    from sklearn.ensemble import IsolationForest
+    import re
+    
+    # Convert categorical data to numerical data using one-hot encoding
+    cleaned_data = pd.get_dummies(cleaned_data, columns=['Department'])
+    
+    # Ensure all columns are numeric
+    for column in cleaned_data.columns:
+        cleaned_data[column] = pd.to_numeric(cleaned_data[column], errors='coerce')
+    
+    # Save version pre one hot encoding
+    cleaned_data_no_one = cleaned_data.copy()
+    
+    # Initialize the Isolation Forest model
+    model = IsolationForest(contamination=0.01, random_state=42)
+    
+    # Fit the model to the data
+    model.fit(cleaned_data)
+    
+    # Predict anomalies (1 for normal, -1 for anomaly)
+    anomalies = model.predict(cleaned_data)
+    
+    # Add the anomaly column to the DataFrame
+    cleaned_data['Anomaly'] = anomalies
+    
+    # Display the rows that are considered anomalies
+    anomalies_df = cleaned_data[cleaned_data['Anomaly'] == -1]
+    
+    # Print the anomalies DataFrame
+    anomalies_df.head()
+    ```
 8. **Counting and Visualizing Anomalies:** Count and visualize the number of anomalies detected by the Isolation Forest model.
-  ```python
-  # Count the number of anomalies
-  anomaly_count = cleaned_data['Anomaly'].value_counts()
-  
-  # Print the count of anomalies
-  print(anomaly_count)
-  
-  # Plot the count of anomalies
-  plt.figure(figsize=(8, 6))
-  anomaly_count.plot(kind='bar')
-  plt.title('Count of Anomalies')
-  plt.xlabel('Anomaly')
-  plt.ylabel('Count')
-  plt.xticks(ticks=[0, 1], labels=['Normal', 'Anomaly'], rotation=0)
-  plt.show()
-  
-  # Plot anomalies in a scatter plot with different colors
-  plt.figure(figsize=(10, 8))
-  plt.scatter(cleaned_data[cleaned_data['Anomaly'] == 1]['AccessionYear'],
-              cleaned_data[cleaned_data['Anomaly'] == 1]['Object Begin Date'],
-              c='blue', label='Normal')
-  plt.scatter(cleaned_data[cleaned_data['Anomaly'] == -1]['AccessionYear'],
-              cleaned_data[cleaned_data['Anomaly'] == -1]['Object Begin Date'],
-              c='red', label='Anomaly')
-  plt.title('Scatter Plot of Anomalies')
-  plt.xlabel('Accession Year')
-  plt.ylabel('Object Begin Date')
-  plt.legend()
-  plt.show()
-  ```
+    ```python
+    # Count the number of anomalies
+    anomaly_count = cleaned_data['Anomaly'].value_counts()
+    
+    # Print the count of anomalies
+    print(anomaly_count)
+    
+    # Plot the count of anomalies
+    plt.figure(figsize=(8, 6))
+    anomaly_count.plot(kind='bar')
+    plt.title('Count of Anomalies')
+    plt.xlabel('Anomaly')
+    plt.ylabel('Count')
+    plt.xticks(ticks=[0, 1], labels=['Normal', 'Anomaly'], rotation=0)
+    plt.show()
+    
+    # Plot anomalies in a scatter plot with different colors
+    plt.figure(figsize=(10, 8))
+    plt.scatter(cleaned_data[cleaned_data['Anomaly'] == 1]['AccessionYear'],
+                cleaned_data[cleaned_data['Anomaly'] == 1]['Object Begin Date'],
+                c='blue', label='Normal')
+    plt.scatter(cleaned_data[cleaned_data['Anomaly'] == -1]['AccessionYear'],
+                cleaned_data[cleaned_data['Anomaly'] == -1]['Object Begin Date'],
+                c='red', label='Anomaly')
+    plt.title('Scatter Plot of Anomalies')
+    plt.xlabel('Accession Year')
+    plt.ylabel('Object Begin Date')
+    plt.legend()
+    plt.show()
+    ```
 9. **Removing Anomalies and Plotting the New Graph:** Remove anomalies from the dataset and plot a scatter plot without these anomalies.
-  ```python
-  # Remove anomalies from the dataset
-  cleaned_data_no_anomalies = cleaned_data[cleaned_data['Anomaly'] == 1]
-  
-  # Plot the new graph without anomalies
-  plt.figure(figsize=(10, 8))
-  plt.scatter(cleaned_data_no_anomalies['AccessionYear'],
-              cleaned_data_no_anomalies['Object Begin Date'],
-              c='blue', label='Normal')
-  plt.title('Scatter Plot without Anomalies')
-  plt.xlabel('Accession Year')
-  plt.ylabel('Object Begin Date')
-  plt.legend()
-  plt.show()
-  ```
+    ```python
+    # Remove anomalies from the dataset
+    cleaned_data_no_anomalies = cleaned_data[cleaned_data['Anomaly'] == 1]
+    
+    # Plot the new graph without anomalies
+    plt.figure(figsize=(10, 8))
+    plt.scatter(cleaned_data_no_anomalies['AccessionYear'],
+                cleaned_data_no_anomalies['Object Begin Date'],
+                c='blue', label='Normal')
+    plt.title('Scatter Plot without Anomalies')
+    plt.xlabel('Accession Year')
+    plt.ylabel('Object Begin Date')
+    plt.legend()
+    plt.show()
+    ```
 10. **Filtering Outliers:** Filter rows in the dataset based on specific conditions.
-  ```python
-  # Filter rows where 'Object Begin Date' is greater than or equal to 'AccessionYear'
-  outlier_rows_positive = cleaned_data[cleaned_data['Object Begin Date'] >= cleaned_data['AccessionYear']]
-  outlier_rows_positive.shape
-  
-  # Filter rows where 'Object Begin Date' is less than or equal to -6000
-  outlier_rows_negative = cleaned_data[cleaned_data['Object Begin Date'] <= -6000]
-  outlier_rows_negative.shape
-  
-  # Filter rows with 'Object Begin Date' within a valid range
-  cleaned_data = cleaned_data[cleaned_data['Object Begin Date'] <= 2025]
-  cleaned_data = cleaned_data[cleaned_data['Object Begin Date'] >= -5000]
-  cleaned_data.shape
-  ```
+    ```python
+    # Filter rows where 'Object Begin Date' is greater than or equal to 'AccessionYear'
+    outlier_rows_positive = cleaned_data[cleaned_data['Object Begin Date'] >= cleaned_data['AccessionYear']]
+    outlier_rows_positive.shape
+    
+    # Filter rows where 'Object Begin Date' is less than or equal to -6000
+    outlier_rows_negative = cleaned_data[cleaned_data['Object Begin Date'] <= -6000]
+    outlier_rows_negative.shape
+    
+    # Filter rows with 'Object Begin Date' within a valid range
+    cleaned_data = cleaned_data[cleaned_data['Object Begin Date'] <= 2025]
+    cleaned_data = cleaned_data[cleaned_data['Object Begin Date'] >= -5000]
+    cleaned_data.shape
+    ```
 11. **Reversing One-Hot Encoding**: Reverse one-hot encoding for the 'Department' column and drop the one-hot encoded columns.
     ```python
     # Identify one-hot encoded columns

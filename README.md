@@ -385,7 +385,7 @@ To install the necessary dependencies, run the following command:
     # Import numpy for numerical operations
     import numpy as np
     ```
-    18. **Data Splitting for Model Training and Testing**: Split the dataset into training and testing sets for both old and cleaned data. The target variable is 'Department', and some irrelevant columns are dropped before splitting.
+18. **Data Splitting for Model Training and Testing**: Split the dataset into training and testing sets for both old and cleaned data. The target variable is 'Department', and some irrelevant columns are dropped before splitting.
     ```python
     # Splits With Old Data
     # Drop irrelevant columns from the old dataset
